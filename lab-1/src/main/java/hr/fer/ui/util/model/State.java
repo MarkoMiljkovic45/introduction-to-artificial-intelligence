@@ -1,4 +1,4 @@
-package hr.fer.uui.util.model;
+package hr.fer.ui.util.model;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,6 +9,8 @@ public class State implements Comparable<State>
 {
     private final String name;
     private double heuristicCost;
+    private double totalCost;
+    private State parent;
 
     private final List<Edge> neighbours;
 
@@ -17,6 +19,7 @@ public class State implements Comparable<State>
         this.name          = name;
         this.heuristicCost = heuristicCost;
         this.neighbours    = new ArrayList<>();
+        this.parent        = null;
     }
 
     /**
@@ -48,10 +51,32 @@ public class State implements Comparable<State>
         this.heuristicCost = heuristicCost;
     }
 
+    public double getTotalCost()
+    {
+        return totalCost;
+    }
+
+    public State getParent()
+    {
+        return parent;
+    }
+
+    public void setTotalCost(double totalCost)
+    {
+        this.totalCost = totalCost;
+    }
+
+    public void setParent(State parent)
+    {
+        this.parent = parent;
+    }
+
     public int compareTo(State other)
     {
         return name.compareTo(other.name);
     }
+
+
 
     public static final Comparator<State> BY_HEURISTIC_COST = (s1, s2) -> (int) (s1.heuristicCost - s2.heuristicCost);
 

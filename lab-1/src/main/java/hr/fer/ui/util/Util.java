@@ -1,8 +1,8 @@
-package hr.fer.uui.util;
+package hr.fer.ui.util;
 
-import hr.fer.uui.util.model.Edge;
-import hr.fer.uui.util.model.State;
-import hr.fer.uui.util.model.StateSpace;
+import hr.fer.ui.util.model.Edge;
+import hr.fer.ui.util.model.State;
+import hr.fer.ui.util.model.StateSpace;
 
 import java.io.IOException;
 import java.nio.file.Files;

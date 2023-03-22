@@ -1,4 +1,4 @@
-package hr.fer.uui.util.model;
+package hr.fer.ui.util.model;
 
 import java.util.*;
 
