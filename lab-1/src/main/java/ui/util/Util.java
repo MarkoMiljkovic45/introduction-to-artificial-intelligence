@@ -1,6 +1,7 @@
 package ui.util;
 
-import ui.algorithms.impl.UCSSearchAlgorithm;
+import ui.algorithms.SearchAlgorithm;
+import ui.algorithms.impl.AbstractSearchAlgorithm;
 import ui.util.model.Edge;
 import ui.util.model.State;
 import ui.util.model.StateSpace;
@@ -8,8 +9,11 @@ import ui.util.model.StateSpace;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Util
 {
@@ -107,47 +111,54 @@ public class Util
         return stateSpace;
     }
 
-    public static void checkIfHeuristicOptimistic(Path stateSpacePath, Path heuristicPath)
+    public static void checkIfHeuristicOptimistic(StateSpace stateSpace, Path heuristicPath)
     {
         System.out.printf("# HEURISTIC-OPTIMISTIC %s\n", heuristicPath.getFileName());
 
-        StateSpace stateSpace = Util.getData(stateSpacePath, heuristicPath);
-        boolean isOptimistic  = true;
-
-        for (State state: stateSpace.getStates())
+        try
         {
-            stateSpace.setInitialState(state);
+            SearchAlgorithm searchAlgorithm = AbstractSearchAlgorithm.getInstance("ucs");
+            searchAlgorithm.setHeuristicPath(heuristicPath);
 
-            UCSSearchAlgorithm ucs = new UCSSearchAlgorithm(stateSpace);
-            ucs.run();
+            boolean isOptimistic  = true;
 
-            double hState = state.getHeuristicCost();
-            double hReal  = ucs.getTotalCost();
+            for (State state: stateSpace.getStates())
+            {
+                stateSpace.setInitialState(state);
 
-            boolean heuristicOptimistic = hState <= hReal;
+                searchAlgorithm.setStateSpace(stateSpace);
+                searchAlgorithm.run();
 
-            System.out.printf("[CONDITION]: [%s] h(%s) <= h*: %.1f <= %.1f\n",
-                    heuristicOptimistic ? "OK" : "ERR",
-                    state.getName(),
-                    hState,
-                    hReal
-            );
+                double hState = state.getHeuristicCost();
+                double hReal  = searchAlgorithm.getTotalCost();
 
-            stateSpace.reset();
-            isOptimistic = isOptimistic && heuristicOptimistic;
+                boolean heuristicOptimistic = hState <= hReal;
+
+                System.out.printf("[CONDITION]: [%s] h(%s) <= h*: %.1f <= %.1f\n",
+                        heuristicOptimistic ? "OK" : "ERR",
+                        state.getName(),
+                        hState,
+                        hReal
+                );
+
+                stateSpace.reset();
+                isOptimistic = isOptimistic && heuristicOptimistic;
+            }
+
+            String optimistic    = "Heuristic is optimistic.";
+            String notOptimistic = "Heuristic is not optimistic.";
+
+            System.out.printf("[CONCLUSION]: %s", isOptimistic ? optimistic : notOptimistic);
+        } catch (NoSuchAlgorithmException e)
+        {
+            System.out.println("Error loading search algorithm.");
         }
-
-        String optimistic    = "Heuristic is optimistic.";
-        String notOptimistic = "Heuristic is not optimistic.";
-
-        System.out.printf("[CONCLUSION]: %s", isOptimistic ? optimistic : notOptimistic);
     }
 
-    public static void checkIfHeuristicConsistent(Path stateSpacePath, Path heuristicPath)
+    public static void checkIfHeuristicConsistent(StateSpace stateSpace, Path heuristicPath)
     {
         System.out.printf("# HEURISTIC-CONSISTENT %s\n", heuristicPath.getFileName());
 
-        StateSpace stateSpace = Util.getData(stateSpacePath, heuristicPath);
         boolean isConsistent  = true;
 
         for (State state: stateSpace.getStates())
@@ -179,5 +190,32 @@ public class Util
         String notConsistent = "Heuristic is not consistent.";
 
         System.out.printf("[CONCLUSION]: %s", isConsistent ? consistent : notConsistent);
+    }
+
+    public static Map<String, String> parseProgramArguments(List<String> args)
+    {
+        Map<String, String> map = new HashMap<>();
+
+        for (String arg : args)
+        {
+            if (arg.startsWith("--"))
+            {
+                if (args.indexOf(arg) + 1 != args.size() && !args.get(args.indexOf(arg) + 1).startsWith("--"))
+                {
+                    map.put(arg.replace("--", ""), args.get(args.indexOf(arg) + 1));
+                }
+                else
+                {
+                    map.put(arg.replace("--", ""), "FLAG_UP");
+                }
+            }
+        }
+
+        return map;
+    }
+
+    public static Map<String, String> parseProgramArguments(String[] args)
+    {
+        return parseProgramArguments(List.of(args));
     }
 }

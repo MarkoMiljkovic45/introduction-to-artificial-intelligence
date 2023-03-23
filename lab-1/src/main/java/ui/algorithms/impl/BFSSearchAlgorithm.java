@@ -12,6 +12,11 @@ public class BFSSearchAlgorithm extends AbstractSearchAlgorithm
         super(new LinkedList<>(), stateSpace, null);
     }
 
+    public BFSSearchAlgorithm()
+    {
+        this(null);
+    }
+
     public String getAlgorithmName()
     {
         return "BFS";

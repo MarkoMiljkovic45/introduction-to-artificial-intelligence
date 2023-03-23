@@ -16,6 +16,11 @@ public class AStarSearchAlgorithm extends AbstractSearchAlgorithm
         );
     }
 
+    public AStarSearchAlgorithm()
+    {
+        this(null, null);
+    }
+
     @Override
     public String getAlgorithmName()
     {

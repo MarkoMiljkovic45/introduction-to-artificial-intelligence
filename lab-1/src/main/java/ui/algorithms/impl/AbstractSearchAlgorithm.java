@@ -1,12 +1,12 @@
 package ui.algorithms.impl;
 
 import ui.algorithms.SearchAlgorithm;
-import ui.util.Util;
 import ui.util.model.Edge;
 import ui.util.model.State;
 import ui.util.model.StateSpace;
 
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
@@ -16,8 +16,8 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
 {
     private final Queue<State> open;
     private final Set<State> visited;
-    private final StateSpace stateSpace;
-    private final Path heuristicPath;
+    private StateSpace stateSpace;
+    private Path heuristicPath;
     private boolean solutionFound;
     private int statesVisited;
     private int pathLength;
@@ -35,6 +35,18 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
         this.pathLength = 0;
         this.finalState = null;
         this.path = "";
+    }
+
+    @Override
+    public void setStateSpace(StateSpace stateSpace)
+    {
+        this.stateSpace = stateSpace;
+    }
+
+    @Override
+    public void setHeuristicPath(Path heuristicPath)
+    {
+        this.heuristicPath = heuristicPath;
     }
 
     public abstract String getAlgorithmName();
@@ -136,6 +148,17 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
             System.out.printf("[PATH_LENGTH]: %d\n", pathLength);
             System.out.printf("[TOTAL_COST]: %.1f\n", finalState.getTotalCost());
             System.out.printf("[PATH]: %s", path);
+        }
+    }
+
+    public static SearchAlgorithm getInstance(String algorithmName) throws NoSuchAlgorithmException
+    {
+        switch (algorithmName)
+        {
+            case "bfs"   -> { return new BFSSearchAlgorithm(); }
+            case "ucs"   -> { return new UCSSearchAlgorithm(); }
+            case "astar" -> { return new AStarSearchAlgorithm(); }
+            default -> throw new NoSuchAlgorithmException("No such algorithm: " + algorithmName);
         }
     }
 

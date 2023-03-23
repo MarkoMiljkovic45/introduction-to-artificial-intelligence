@@ -12,6 +12,11 @@ public class UCSSearchAlgorithm extends AbstractSearchAlgorithm
         super(new PriorityQueue<>(State.BY_TOTAL_COST.thenComparing(State.BY_NAME)), stateSpace, null);
     }
 
+    public UCSSearchAlgorithm()
+    {
+        this(null);
+    }
+
     @Override
     public String getAlgorithmName()
     {
