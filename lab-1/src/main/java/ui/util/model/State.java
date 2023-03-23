@@ -1,24 +1,21 @@
-package hr.fer.ui.util.model;
+package ui.util.model;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class State implements Comparable<State>
+public class State
 {
     private final String name;
     private double heuristicCost;
     private double totalCost;
     private State parent;
 
-    private final List<Edge> neighbours;
+    private final Set<Edge> neighbours;
 
     public State(String name, double heuristicCost)
     {
         this.name          = name;
         this.heuristicCost = heuristicCost;
-        this.neighbours    = new ArrayList<>();
+        this.neighbours    = new TreeSet<>(Comparator.comparing(e -> e.getNeighbour().getName()));
         this.parent        = null;
     }
 
@@ -41,7 +38,7 @@ public class State implements Comparable<State>
         return heuristicCost;
     }
 
-    public List<Edge> getNeighbours()
+    public Set<Edge> getNeighbours()
     {
         return neighbours;
     }
@@ -71,15 +68,16 @@ public class State implements Comparable<State>
         this.parent = parent;
     }
 
-    public int compareTo(State other)
+    public static final Comparator<State> BY_NAME = Comparator.comparing(State::getName);
+    public static final Comparator<State> BY_TOTAL_COST = (s1, s2) -> (int) (s1.getTotalCost() - s2.getTotalCost());
+    public static final Comparator<State> A_STAR = (s1, s2) -> (int) (s1.getTotalCost() + s1.getHeuristicCost() - s2.getTotalCost() - s2.getHeuristicCost());
+
+
+    @Override
+    public String toString()
     {
-        return name.compareTo(other.name);
+        return getName();
     }
-
-
-
-    public static final Comparator<State> BY_HEURISTIC_COST = (s1, s2) -> (int) (s1.heuristicCost - s2.heuristicCost);
-
 
     @Override
     public boolean equals(Object o)

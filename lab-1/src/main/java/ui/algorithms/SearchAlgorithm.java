@@ -1,4 +1,4 @@
-package hr.fer.ui.algorithms;
+package ui.algorithms;
 
 public interface SearchAlgorithm
 {

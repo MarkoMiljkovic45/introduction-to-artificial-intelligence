@@ -1,4 +1,4 @@
-package hr.fer.ui.util.model;
+package ui.util.model;
 
 import java.util.Objects;
 
@@ -37,13 +37,13 @@ public class Edge implements Comparable<Edge>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Edge edge = (Edge) o;
-        return Double.compare(edge.weight, weight) == 0 && Objects.equals(neighbour, edge.neighbour);
+        return neighbour.equals(edge.neighbour);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(neighbour, weight);
+        return Objects.hash(neighbour);
     }
 
     @Override

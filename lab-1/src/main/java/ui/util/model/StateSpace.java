@@ -1,4 +1,4 @@
-package hr.fer.ui.util.model;
+package ui.util.model;
 
 import java.util.*;
 
@@ -32,5 +32,10 @@ public class StateSpace
     public void setInitialState(State initialState)
     {
         this.initialState = initialState;
+    }
+
+    public void reset()
+    {
+        for (State state: states) state.setParent(null);
     }
 }

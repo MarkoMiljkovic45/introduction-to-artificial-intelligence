@@ -1,12 +1,13 @@
-package hr.fer.ui.algorithms.impl;
+package ui.algorithms.impl;
 
-import hr.fer.ui.algorithms.SearchAlgorithm;
-import hr.fer.ui.util.Util;
-import hr.fer.ui.util.model.Edge;
-import hr.fer.ui.util.model.State;
-import hr.fer.ui.util.model.StateSpace;
+import ui.algorithms.SearchAlgorithm;
+import ui.util.Util;
+import ui.util.model.Edge;
+import ui.util.model.State;
+import ui.util.model.StateSpace;
 
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
@@ -23,16 +24,15 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
     private State finalState;
     private String path;
 
-    public AbstractSearchAlgorithm(Queue<State> open, Set<State> visited, Path stateSpacePath, Path heuristicPath)
+    public AbstractSearchAlgorithm(Queue<State> open, StateSpace stateSpace, Path heuristicPath)
     {
         this.open = open;
-        this.visited = visited;
-        this.stateSpace = Util.getData(stateSpacePath, heuristicPath);
+        this.visited = new HashSet<>();
+        this.stateSpace = stateSpace;
         this.heuristicPath = heuristicPath;
         this.solutionFound = false;
         this.statesVisited = 0;
         this.pathLength = 0;
-        this.totalCost = 0;
         this.finalState = null;
         this.path = "";
     }
@@ -42,6 +42,7 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
     @Override
     public void run()
     {
+        solutionFound = false;
         open.add(stateSpace.getInitialState());
 
         while (!open.isEmpty())
@@ -52,6 +53,7 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
             {
                 finalState = n;
                 solutionFound = true;
+                shortestPathReconstruction();
                 return;
             }
             visited.add(n);
@@ -61,12 +63,12 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
                 if (!visited.contains(neighbour))
                 {
                     resolveParent(n, edge);
-                    open.add(neighbour);
+
+                    if (!open.contains(neighbour))
+                        open.add(neighbour);
                 }
             }
         }
-
-        if (solutionFound) shortestPathReconstruction();
     }
 
     private void resolveParent(State parent, Edge edge)
@@ -78,6 +80,12 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
         {
             child.setParent(parent);
             child.setTotalCost(newTotalCost);
+
+            if (open.contains(child))
+            {
+                open.remove(child);
+                open.add(child);
+            }
         }
     }
 
@@ -107,10 +115,20 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
         path = sb.toString();
     }
 
+    public double getTotalCost()
+    {
+        if (finalState == null) return -1;
+        return finalState.getTotalCost();
+    }
+
     @Override
     public void printResults()
     {
-        System.out.printf("# %s %s\n", getAlgorithmName(), heuristicPath);
+        System.out.printf("# %s", getAlgorithmName());
+
+        if (heuristicPath != null) System.out.printf(" %s\n", heuristicPath.getFileName());
+        else System.out.print("\n");
+
         System.out.printf("[FOUND_SOLUTION]: %s\n", solutionFound ? "yes" : "no");
         if (solutionFound)
         {
