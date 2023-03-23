@@ -17,6 +17,7 @@ public class State
         this.heuristicCost = heuristicCost;
         this.neighbours    = new TreeSet<>(Comparator.comparing(e -> e.getNeighbour().getName()));
         this.parent        = null;
+        this.totalCost     = 0;
     }
 
     /**

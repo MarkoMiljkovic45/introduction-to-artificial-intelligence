@@ -36,6 +36,10 @@ public class StateSpace
 
     public void reset()
     {
-        for (State state: states) state.setParent(null);
+        for (State state: states)
+        {
+            state.setParent(null);
+            state.setTotalCost(0);
+        }
     }
 }

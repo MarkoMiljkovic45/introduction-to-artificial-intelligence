@@ -54,7 +54,12 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
     @Override
     public void run()
     {
+        open.clear();
+        visited.clear();
         solutionFound = false;
+        statesVisited = 0;
+        stateSpace.reset();
+
         open.add(stateSpace.getInitialState());
 
         while (!open.isEmpty())

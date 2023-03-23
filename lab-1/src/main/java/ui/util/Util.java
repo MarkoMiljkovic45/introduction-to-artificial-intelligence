@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Util
 {
@@ -118,15 +115,18 @@ public class Util
         try
         {
             SearchAlgorithm searchAlgorithm = AbstractSearchAlgorithm.getInstance("ucs");
+            searchAlgorithm.setStateSpace(stateSpace);
             searchAlgorithm.setHeuristicPath(heuristicPath);
 
             boolean isOptimistic  = true;
 
-            for (State state: stateSpace.getStates())
+            List<State> states = stateSpace.getStates();
+            states.sort(State.BY_NAME);
+
+            for (State state: states)
             {
                 stateSpace.setInitialState(state);
 
-                searchAlgorithm.setStateSpace(stateSpace);
                 searchAlgorithm.run();
 
                 double hState = state.getHeuristicCost();
@@ -141,7 +141,6 @@ public class Util
                         hReal
                 );
 
-                stateSpace.reset();
                 isOptimistic = isOptimistic && heuristicOptimistic;
             }
 
@@ -161,7 +160,10 @@ public class Util
 
         boolean isConsistent  = true;
 
-        for (State state: stateSpace.getStates())
+        List<State> states = stateSpace.getStates();
+        states.sort(State.BY_NAME);
+
+        for (State state: states)
         {
             for (Edge edge: state.getNeighbours())
             {
