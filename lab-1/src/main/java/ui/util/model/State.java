@@ -7,7 +7,10 @@ public class State
     private final String name;
     private double heuristicCost;
     private double totalCost;
+
+    //TODO separate parent and depth to Node
     private State parent;
+    private int depth;
 
     private final Set<Edge> neighbours;
 
@@ -18,6 +21,7 @@ public class State
         this.neighbours    = new TreeSet<>(Comparator.comparing(e -> e.getNeighbour().getName()));
         this.parent        = null;
         this.totalCost     = 0;
+        this.depth         = 0;
     }
 
     /**
@@ -69,8 +73,19 @@ public class State
         this.parent = parent;
     }
 
+    public int getDepth()
+    {
+        return depth;
+    }
+
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
+
     public static final Comparator<State> BY_NAME = Comparator.comparing(State::getName);
     public static final Comparator<State> BY_TOTAL_COST = (s1, s2) -> (int) (s1.getTotalCost() - s2.getTotalCost());
+    public static final Comparator<State> BY_DEPTH = Comparator.comparingInt(State::getDepth);
     public static final Comparator<State> A_STAR = (s1, s2) -> (int) (s1.getTotalCost() + s1.getHeuristicCost() - s2.getTotalCost() - s2.getHeuristicCost());
 
 

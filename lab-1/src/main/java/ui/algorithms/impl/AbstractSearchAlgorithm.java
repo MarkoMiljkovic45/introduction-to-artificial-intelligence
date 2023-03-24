@@ -77,6 +77,7 @@ public abstract class AbstractSearchAlgorithm implements SearchAlgorithm
             for (Edge edge: n.getNeighbours())
             {
                 State neighbour = edge.getNeighbour();
+                neighbour.setDepth(n.getDepth() + 1);
                 if (!visited.contains(neighbour))
                 {
                     resolveParent(n, edge);

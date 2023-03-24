@@ -40,6 +40,7 @@ public class StateSpace
         {
             state.setParent(null);
             state.setTotalCost(0);
+            state.setDepth(0);
         }
     }
 }

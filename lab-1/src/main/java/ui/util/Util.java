@@ -14,6 +14,7 @@ import java.util.*;
 
 public class Util
 {
+    //TODO speed up getData
     public static StateSpace getData(Path stateSpacePath, Path heuristicPath)
     {
         StateSpace stateSpace        = new StateSpace();
