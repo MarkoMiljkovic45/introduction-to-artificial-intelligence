@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Represents an atomic formula
  */
-public class Literal {
+public class Literal implements Comparable<Literal> {
 
     private final String name;
     private boolean negated;
@@ -27,12 +27,13 @@ public class Literal {
         return negated;
     }
 
-    public void setNegated(boolean negated) {
-        this.negated = negated;
-    }
-
-    public void negate() {
-        negated = !negated;
+    @Override
+    public String toString() {
+        if (negated) {
+            return "~" + name;
+        } else {
+            return name;
+        }
     }
 
     @Override
@@ -40,11 +41,22 @@ public class Literal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Literal literal = (Literal) o;
-        return name.equals(literal.name);
+        return negated == literal.negated && Objects.equals(name, literal.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(name, negated);
+    }
+
+    @Override
+    public int compareTo(Literal literal) {
+        int nameDiff = name.compareTo(literal.getName());
+
+        if (nameDiff != 0) return nameDiff;
+
+        if (negated != literal.negated) return negated ? 1 : -1;
+
+        return 0;
     }
 }
