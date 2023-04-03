@@ -9,41 +9,93 @@ import java.util.*;
 public class Solution {
 
 	public static void main(String[] args) {
-		if (args.length == 2) {
-			String resolution  = args[0];
-			Path   clausesPath = Path.of(args[1]);
+		try {
+			if (args.length == 2) {
+				String resolution  = args[0];
+				Path   clausesPath = Path.of(args[1]);
 
-			if (resolution.equals("resolution")) {
-				resolve(clausesPath);
-				return;
+				if (resolution.equals("resolution")) {
+					resolve(clausesPath);
+					return;
+				}
 			}
-		}
 
-		if (args.length == 3) {
-			String cooking      = args[0];
-			Path   clausesPath  = Path.of(args[1]);
-			Path   commandsPath = Path.of(args[2]);
+			if (args.length == 3) {
+				String cooking      = args[0];
+				Path   clausesPath  = Path.of(args[1]);
+				Path   commandsPath = Path.of(args[2]);
 
-			if (cooking.equals("cooking")) {
-				executeCommands(clausesPath, commandsPath);
-				return;
+				if (cooking.equals("cooking")) {
+					executeCommands(clausesPath, commandsPath);
+					return;
+				}
 			}
-		}
 
-		System.out.println("Invalid arguments.");
+			System.out.println("Invalid arguments.");
+		} catch (Exception e) {
+			System.out.println("An error occurred: " + e.getMessage());
+		}
 	}
 
-	private static void resolve(Path classesPath) {
-		//TODO
+	private static void resolve(Path clausesPath) throws IOException {
+		RefutationResolution resolver   = initRefutationResolution(loadClauses(clausesPath));
+		boolean              conclusion = resolver.resolve();
+
+		if (!conclusion) {
+			System.out.printf("[CONCLUSION]: %s is unknown", resolver.getTarget());
+			return;
+		}
+
+		Clause nilClause = resolver.getClauses().get(resolver.getClauses().size() - 1);
+
+		Map<Clause, Integer> clauseIndex = new HashMap<>();
+		List<Clause>         usedClauses = reconstructUsedClauses(nilClause);
+
+		//TODO Used clauses print
+
+		System.out.printf("[CONCLUSION]: %s is true", resolver.getTarget());
+	}
+
+	private static List<Clause> reconstructUsedClauses(Clause nilClause) {
+		LinkedList<Clause> usedClauses = new LinkedList<>();
+		reconstructUsedClausesRecursive(usedClauses, nilClause);
+		return usedClauses;
+	}
+
+	private static void reconstructUsedClausesRecursive(LinkedList<Clause> usedClauses, Clause clause) {
+		/*
+		 * TODO Recursively add with parents to front, without parents to front of list and
+		 * call recursively parents
+		 */
+	}
+
+	private static RefutationResolution initRefutationResolution(List<Clause> clauses) {
+		List<Clause> inputClauses  = clauses.subList(0, clauses.size() - 1);
+		int          indexOfTarget = clauses.size() - 1;
+		Clause       target        = clauses.get(indexOfTarget);
+		clauses.addAll(negateTarget(target));
+		List<Clause> negatedTarget = clauses.subList(indexOfTarget, clauses.size());
+
+		return new RefutationResolution(clauses, inputClauses, negatedTarget, target);
+	}
+
+	private static List<Clause> negateTarget(Clause clause) {
+		List<Clause> negatedTarget = new ArrayList<>();
+
+		for (Literal literal: clause) {
+			negatedTarget.add(new Clause(new Literal(literal.getName(), !literal.isNegated())));
+		}
+
+		return negatedTarget;
 	}
 
 	private static void executeCommands(Path classesPath, Path commandsPath) {
 		//TODO
 	}
 
-	private static Set<Clause> loadClauses(Path clausesPath) throws IOException {
-		Set<Clause> clauses = new TreeSet<>();
-		Scanner reader      = new Scanner(clausesPath);
+	private static List<Clause> loadClauses(Path clausesPath) throws IOException {
+		List<Clause> clauses = new ArrayList<>();
+		Scanner reader       = new Scanner(clausesPath);
 
 		while (reader.hasNext()) {
 			String line = reader.nextLine();
