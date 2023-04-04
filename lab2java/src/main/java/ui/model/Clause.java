@@ -17,6 +17,10 @@ public class Clause implements Comparable<Clause>, Iterable<Literal> {
         this.literals = literals;
     }
 
+    public Clause(Clause firstParent, Clause secondParent) {
+        this(firstParent, secondParent, new TreeSet<>());
+    }
+
     public Clause(Literal...literals) {
         this(null, null, new TreeSet<>(Set.of(literals)));
     }
@@ -33,7 +37,9 @@ public class Clause implements Comparable<Clause>, Iterable<Literal> {
         return secondParent;
     }
 
-
+    public Set<Literal> getLiterals() {
+        return literals;
+    }
 
     public void addLiteral(Literal l) {
         literals.add(l);
@@ -41,6 +47,26 @@ public class Clause implements Comparable<Clause>, Iterable<Literal> {
 
     public boolean containsClause(Clause other) {
         return literals.containsAll(other.literals);
+    }
+
+    public boolean isTautology() {
+        if (literals.size() > 1) {
+            Iterator<Literal> iterator = literals.iterator();
+
+            Literal last = iterator.next();
+
+            while (iterator.hasNext()) {
+                Literal literal = iterator.next();
+
+                if (literal.getName().equals(last.getName())) {
+                    return true;
+                }
+
+                last = literal;
+            }
+        }
+
+        return false;
     }
 
     @Override

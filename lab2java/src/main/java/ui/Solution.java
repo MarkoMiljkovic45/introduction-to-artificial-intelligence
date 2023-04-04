@@ -46,7 +46,7 @@ public class Solution {
 			return;
 		}
 
-		Clause nilClause = resolver.getClauses().get(resolver.getClauses().size() - 1);
+		Clause nilClause = resolver.getNil();
 
 		Map<Clause, Integer> clauseIndex = new HashMap<>();
 		List<Clause>         usedClauses = reconstructUsedClauses(nilClause);
@@ -70,13 +70,14 @@ public class Solution {
 	}
 
 	private static RefutationResolution initRefutationResolution(List<Clause> clauses) {
-		List<Clause> inputClauses  = clauses.subList(0, clauses.size() - 1);
 		int          indexOfTarget = clauses.size() - 1;
 		Clause       target        = clauses.get(indexOfTarget);
-		clauses.addAll(negateTarget(target));
-		List<Clause> negatedTarget = clauses.subList(indexOfTarget, clauses.size());
+		List<Clause> negatedTarget = negateTarget(target);
 
-		return new RefutationResolution(clauses, inputClauses, negatedTarget, target);
+		clauses.remove(indexOfTarget);
+		clauses.addAll(negatedTarget);
+
+		return new RefutationResolution(new TreeSet<>(clauses), new TreeSet<>(negatedTarget), target);
 	}
 
 	private static List<Clause> negateTarget(Clause clause) {
