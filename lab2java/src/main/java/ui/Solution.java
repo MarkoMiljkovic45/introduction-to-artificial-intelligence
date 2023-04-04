@@ -47,15 +47,51 @@ public class Solution {
 		}
 
 		Clause nilClause = resolver.getNil();
+		List<Clause> usedClauses = reconstructUsedClauses(nilClause);
+		Map<Clause, Integer> clauseIndexMap  = new HashMap<>();
+		int usedClausesSize = usedClauses.size();
+		int i               = 0;
 
-		Map<Clause, Integer> clauseIndex = new HashMap<>();
-		List<Clause>         usedClauses = reconstructUsedClauses(nilClause);
+		while (i < usedClausesSize) {
+			int    index  = i + 1;
+			Clause clause = usedClauses.get(i);
+			clauseIndexMap.put(clause, index);
 
-		//TODO Used clauses print
+			if (clause.getFirstParent() != null) {
+				System.out.println("===============");
+				break;
+			}
 
+			System.out.printf("%d. %s\n", index, clause);
+			i++;
+		}
+
+		while (i < usedClausesSize) {
+			int index = i + 1;
+			Clause clause = usedClauses.get(i);
+			clauseIndexMap.put(clause, index);
+
+			int firstParentIndex  = clauseIndexMap.get(clause.getFirstParent());
+			int secondParentIndex = clauseIndexMap.get(clause.getSecondParent());
+
+			if (firstParentIndex > secondParentIndex) {
+				int tmp = firstParentIndex;
+				firstParentIndex = secondParentIndex;
+				secondParentIndex = tmp;
+			}
+			System.out.printf("%d. %s (%d, %d)\n", index, clause, firstParentIndex, secondParentIndex);
+			i++;
+		}
+		System.out.println("===============");
 		System.out.printf("[CONCLUSION]: %s is true", resolver.getTarget());
 	}
 
+	/**
+	 * Reconstructs the used clauses by putting the input clauses and
+	 * negated target clauses first and then the newly generated clauses
+	 * @param nilClause Used to reconstruct the used clauses
+	 * @return Used clauses
+	 */
 	private static List<Clause> reconstructUsedClauses(Clause nilClause) {
 		LinkedList<Clause> usedClauses = new LinkedList<>();
 		reconstructUsedClausesRecursive(usedClauses, nilClause);
@@ -63,10 +99,19 @@ public class Solution {
 	}
 
 	private static void reconstructUsedClausesRecursive(LinkedList<Clause> usedClauses, Clause clause) {
-		/*
-		 * TODO Recursively add with parents to front, without parents to front of list and
-		 * call recursively parents
-		 */
+		if (clause == null) return;
+
+		Clause firstParent  = clause.getFirstParent();
+		Clause secondParent = clause.getSecondParent();
+
+		if (firstParent == null && secondParent == null) {
+			usedClauses.addFirst(clause);
+			return;
+		}
+
+		reconstructUsedClausesRecursive(usedClauses, firstParent);
+		reconstructUsedClausesRecursive(usedClauses, secondParent);
+		usedClauses.addLast(clause);
 	}
 
 	private static RefutationResolution initRefutationResolution(List<Clause> clauses) {

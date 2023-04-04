@@ -71,6 +71,10 @@ public class Clause implements Comparable<Clause>, Iterable<Literal> {
 
     @Override
     public String toString() {
+        if (literals.size() == 0) {
+            return "NIL";
+        }
+
         StringBuilder sb = new StringBuilder();
 
         Iterator<Literal> iterator = literals.iterator();

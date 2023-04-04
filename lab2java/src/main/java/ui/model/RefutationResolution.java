@@ -56,18 +56,28 @@ public class RefutationResolution {
      * </ul>
      */
     private void simplify() {
-        Iterator<Clause> iterator = clauses.iterator();
+        Iterator<Clause> iterator  = clauses.iterator();
+        List<Clause>     superSets = new ArrayList<>();
 
         while (iterator.hasNext()) {
             Clause clause = iterator.next();
 
-            if (clause.isTautology() || clauseContainedInClauses(clause, clauses)) {
+            if (clause.isTautology()) {
                 iterator.remove();
             }
+
+            Clause superSet = isSubsetOf(clause, clauses);
+
+            if (superSet != null) {
+                superSets.add(superSet);
+            }
         }
+
+        superSets.forEach(clauses::remove);
+        superSets.forEach(setOfSupport::remove);
     }
 
-    private boolean clauseContainedInClauses(Clause clause, Collection<Clause> clauses) {
+    private Clause isSubsetOf(Clause clause, Collection<Clause> clauses) {
         for (Clause other : clauses) {
             boolean otherSmaller = other.getLiterals().size() < clause.getLiterals().size();
             boolean isEqual      = clause == other;
@@ -77,11 +87,11 @@ public class RefutationResolution {
             }
 
             if (other.containsClause(clause)) {
-                return true;
+                return other;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -95,6 +105,10 @@ public class RefutationResolution {
 
         for (Clause first: clauses) {
             for (Clause second: setOfSupport) {
+                if (first == second) {
+                    continue;
+                }
+
                 Clause resolvent = resolveClauses(first, second);
 
                 if (resolvent == null) {
@@ -126,9 +140,10 @@ public class RefutationResolution {
             String firstName  = firstLiteral.getName();
             String secondName = secondLiteral.getName();
 
-            int cmp = firstName.compareTo(secondName);
+            int     cmp           = firstName.compareTo(secondName);
+            boolean sameNegations = firstLiteral.isNegated() == secondLiteral.isNegated();
 
-            while(cmp != 0) {
+            while(cmp != 0 || sameNegations) {
                 if (cmp < 0) {
                     firstLiteral = firstIterator.next();
                 } else {
@@ -139,6 +154,7 @@ public class RefutationResolution {
                 secondName = secondLiteral.getName();
 
                 cmp = firstName.compareTo(secondName);
+                sameNegations = firstLiteral.isNegated() == secondLiteral.isNegated();
             }
 
             resolvent.getLiterals().addAll(first.getLiterals());
