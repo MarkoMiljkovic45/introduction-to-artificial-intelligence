@@ -16,10 +16,6 @@ public class RefutationResolution {
         this.nil          = null;
     }
 
-    public Set<Clause> getClauses() {
-        return clauses;
-    }
-
     public Clause getTarget() {
         return target;
     }

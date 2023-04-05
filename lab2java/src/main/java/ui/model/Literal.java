@@ -8,15 +8,11 @@ import java.util.Objects;
 public class Literal implements Comparable<Literal> {
 
     private final String name;
-    private boolean negated;
+    private final boolean negated;
 
     public Literal(String name, boolean negated) {
-        this.name = name.toLowerCase();
+        this.name = name;
         this.negated = negated;
-    }
-
-    public Literal(String name) {
-        this(name, false);
     }
 
     public String getName() {
