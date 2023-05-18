@@ -1,6 +1,7 @@
 package main.java.ui.model;
 
 import main.java.ui.model.data.Data;
+import main.java.ui.model.data.Sample;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,17 +18,61 @@ public class ID3 {
         decisionTreeRoot = id3(data, data, features);
     }
 
+    public List<String> getBranches() {
+        List<String> branches = new ArrayList<>();
+        recursiveBranchReconstruction(decisionTreeRoot, branches, "", 1);
+        return branches;
+    }
+
+    private void recursiveBranchReconstruction(Node node, List<String> branches, String branch, int depth) {
+        if (node.isLeaf()) {
+            branches.add(branch + node.getValue());
+            return;
+        }
+
+        Map<String, Node> children = node.getChildren();
+
+        for (String transition: children.keySet()) {
+            recursiveBranchReconstruction(
+                    children.get(transition),
+                    branches,
+                    branch + depth + ":" + node.getValue() + "=" + transition + " ",
+                    depth + 1
+            );
+        }
+    }
+
     /**
      * Uses the model to predict the label for samples in the test set
      * @param testSet samples to be labeled
      * @return Labeled data
      */
     public List<String> predict(Data testSet) {
-        //TODO
+        List<String> predictions = new ArrayList<>();
 
-        //1. Print BRANCHES to all leafs, Nodes sorted by depth
-        //
-        return null;
+        for (Sample sample: testSet.getData()) {
+            Map<String, String> featureMap = sample.getFeatureMap();
+
+            Node node = decisionTreeRoot;
+            while(!node.isLeaf()) {
+                String featureValue = featureMap.get(node.getValue());
+                Node nextNode = node.getChildren().get(featureValue);
+
+                if (nextNode == null) {
+                    break;
+                } else {
+                    node = nextNode;
+                }
+            }
+
+            if (node.isLeaf()) {
+                predictions.add(node.getValue());
+            } else {
+                predictions.add(node.getDataPartition().mostFrequentLabel());
+            }
+        }
+
+        return predictions;
     }
 
     private Node id3(Data data, Data parentData, Set<String> features) {
@@ -49,7 +94,7 @@ public class ID3 {
             subtrees.put(value, subtree);
         }
 
-        return new Node(feature, subtrees);
+        return new Node(feature, subtrees, data);
     }
 
     private static Set<String> subset(Set<String> set, String exclude) {

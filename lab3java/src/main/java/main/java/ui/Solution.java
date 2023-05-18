@@ -24,9 +24,13 @@ public class Solution {
 
         ID3 model = new ID3();
         model.fit(trainDataSet);
-        List<String> predictions = model.predict(testDataSet);
 
-        System.out.println(predictions);
+        System.out.println("[BRANCHES]:");
+        model.getBranches().forEach(System.out::println);
+
+        System.out.print("[PREDICTIONS]:");
+        List<String> predictions = model.predict(testDataSet);
+        predictions.forEach(prediction -> System.out.print(" " + prediction));
     }
 
     private static Data loadData(Path data, boolean verbose) {

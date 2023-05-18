@@ -22,6 +22,11 @@ public class DataSet implements Data {
     }
 
     @Override
+    public List<Sample> getData() {
+        return data;
+    }
+
+    @Override
     public boolean isEmpty() {
         return data.isEmpty();
     }
@@ -31,6 +36,15 @@ public class DataSet implements Data {
         return data.size();
     }
 
+    /**
+     * Counts the number of label occurrences and returns the
+     * one with most occurrences.
+     * <p>
+     * If number of occurrences is tied, the alphabetically smaller label
+     * is returned
+     *
+     * @return The most frequent label in this data set
+     */
     @Override
     public String mostFrequentLabel() {
         Map<String, Long> counts = data.stream()
@@ -39,7 +53,14 @@ public class DataSet implements Data {
 
         Map.Entry<String, Long> mfl = counts.entrySet()
                 .stream()
-                .max(Map.Entry.comparingByValue()).orElse(null);
+                .max((e1, e2) -> {
+                    if (e1.getValue().equals(e2.getValue())) {
+                        return e1.getKey().compareTo(e2.getKey());
+                    } else {
+                        return e1.getValue().compareTo(e2.getValue());
+                    }
+                })
+                .orElse(null);
 
         if (mfl != null) {
             return mfl.getKey();
@@ -95,7 +116,7 @@ public class DataSet implements Data {
         }
 
         if (verbose) {
-            System.out.print("IG(" + feature + ")=" + ig + " ");
+            System.out.printf("IG(%s)=%.4f ", feature, ig);
         }
 
         return ig;

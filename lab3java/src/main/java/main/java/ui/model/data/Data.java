@@ -1,5 +1,6 @@
 package main.java.ui.model.data;
 
+import java.util.List;
 import java.util.Set;
 
 public interface Data {
@@ -22,5 +23,6 @@ public interface Data {
     Set<String> getFeatureValueSet(String feature);
     Set<String> getFeatureSet();
     Set<String> getLabelSet();
+    List<Sample> getData();
     boolean equals(Object o);
 }
