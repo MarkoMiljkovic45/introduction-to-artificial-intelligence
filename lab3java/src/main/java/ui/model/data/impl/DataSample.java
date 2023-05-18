@@ -1,6 +1,6 @@
-package main.java.ui.model.data.impl;
+package ui.model.data.impl;
 
-import main.java.ui.model.data.Sample;
+import ui.model.data.Sample;
 
 import java.util.HashMap;
 import java.util.Map;

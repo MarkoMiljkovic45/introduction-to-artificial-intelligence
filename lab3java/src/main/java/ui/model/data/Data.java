@@ -1,4 +1,4 @@
-package main.java.ui.model.data;
+package ui.model.data;
 
 import java.util.List;
 import java.util.Set;

@@ -1,13 +1,22 @@
-package main.java.ui.model;
+package ui.model;
 
-import main.java.ui.model.data.Data;
-import main.java.ui.model.data.Sample;
+import ui.model.data.Data;
+import ui.model.data.Sample;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ID3 {
     private Node decisionTreeRoot;
+    private final int depthLimit;
+
+    public ID3(int depthLimit) {
+        this.depthLimit = depthLimit;
+    }
+
+    public ID3() {
+        this(-1);
+    }
 
     /**
      * Trains the model on labeled data
@@ -15,7 +24,7 @@ public class ID3 {
      */
     public void fit(Data data) {
         Set<String> features = data.getFeatureSet();
-        decisionTreeRoot = id3(data, data, features);
+        decisionTreeRoot = id3(data, data, features, 0, depthLimit);
     }
 
     public List<String> getBranches() {
@@ -75,10 +84,14 @@ public class ID3 {
         return predictions;
     }
 
-    private Node id3(Data data, Data parentData, Set<String> features) {
+    private Node id3(Data data, Data parentData, Set<String> features, int depth, int depthLimit) {
         if (data.isEmpty()) {
             String label = parentData.mostFrequentLabel();
             return new Node(label);
+        }
+
+        if (depth == depthLimit) {
+            return new Node(data.mostFrequentLabel());
         }
 
         String label = data.mostFrequentLabel();
@@ -90,7 +103,7 @@ public class ID3 {
         Map<String, Node> subtrees = new HashMap<>();
 
         for(String value: data.getFeatureValueSet(feature)) {
-            Node subtree = id3(data.partitionByFeatureValue(feature, value), data, subset(features, feature));
+            Node subtree = id3(data.partitionByFeatureValue(feature, value), data, subset(features, feature), depth + 1, depthLimit);
             subtrees.put(value, subtree);
         }
 

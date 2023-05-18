@@ -1,7 +1,7 @@
-package main.java.ui.model.data.impl;
+package ui.model.data.impl;
 
-import main.java.ui.model.data.Data;
-import main.java.ui.model.data.Sample;
+import ui.model.data.Data;
+import ui.model.data.Sample;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,16 +51,17 @@ public class DataSet implements Data {
                 .map(Sample::getLabel)
                 .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
 
-        Map.Entry<String, Long> mfl = counts.entrySet()
-                .stream()
-                .max((e1, e2) -> {
-                    if (e1.getValue().equals(e2.getValue())) {
-                        return e1.getKey().compareTo(e2.getKey());
-                    } else {
-                        return e1.getValue().compareTo(e2.getValue());
-                    }
-                })
-                .orElse(null);
+        Map.Entry<String, Long> mfl = null;
+
+        for (Map.Entry<String, Long> entry: counts.entrySet()) {
+            if (mfl == null || mfl.getValue() < entry.getValue()) {
+                mfl = entry;
+            } else if (mfl.getValue().equals(entry.getValue())) {
+                if (mfl.getKey().compareTo(entry.getKey()) > 0) {
+                    mfl = entry;
+                }
+            }
+        }
 
         if (mfl != null) {
             return mfl.getKey();

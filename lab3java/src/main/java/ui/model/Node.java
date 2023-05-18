@@ -1,6 +1,6 @@
-package main.java.ui.model;
+package ui.model;
 
-import main.java.ui.model.data.Data;
+import ui.model.data.Data;
 
 import java.util.Map;
 

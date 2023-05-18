@@ -1,8 +1,10 @@
-package main.java.ui.model.data.impl;
+package ui.model.data.impl.impl;
 
-import main.java.ui.model.data.Data;
-import main.java.ui.model.data.Sample;
+import ui.model.data.Data;
+import ui.model.data.Sample;
 import org.junit.jupiter.api.Test;
+import ui.model.data.impl.DataSample;
+import ui.model.data.impl.DataSet;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
