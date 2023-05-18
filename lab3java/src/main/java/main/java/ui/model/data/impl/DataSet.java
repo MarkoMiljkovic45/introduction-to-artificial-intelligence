@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 public class DataSet implements Data {
     private final List<Sample> data;
     private Set<String> featureSet;
-    private Set<String> featureValueSet;
     private Set<String> labelSet;
     private final boolean verbose;
 
@@ -40,7 +39,7 @@ public class DataSet implements Data {
 
         Map.Entry<String, Long> mfl = counts.entrySet()
                 .stream()
-                .max(Comparator.comparing(Map.Entry::getValue)).orElse(null);
+                .max(Map.Entry.comparingByValue()).orElse(null);
 
         if (mfl != null) {
             return mfl.getKey();
@@ -135,13 +134,9 @@ public class DataSet implements Data {
 
     @Override
     public Set<String> getFeatureValueSet(String feature) {
-        if (featureValueSet == null) {
-            featureValueSet = data.stream()
-                    .map(sample -> sample.getFeatureMap().get(feature))
-                    .collect(Collectors.toSet());
-        }
-
-        return featureValueSet;
+        return data.stream()
+                .map(sample -> sample.getFeatureMap().get(feature))
+                .collect(Collectors.toSet());
     }
 
     @Override

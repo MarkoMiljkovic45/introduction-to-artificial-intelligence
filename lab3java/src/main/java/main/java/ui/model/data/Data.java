@@ -22,4 +22,5 @@ public interface Data {
     Set<String> getFeatureValueSet(String feature);
     Set<String> getFeatureSet();
     Set<String> getLabelSet();
+    boolean equals(Object o);
 }
