@@ -14,7 +14,7 @@ public class DataSet implements Data {
     private final boolean verbose;
 
     public DataSet(List<Sample> data, boolean verbose) {
-        this.data = data;
+        this.data = Objects.requireNonNullElse(data, Collections.emptyList());
         this.verbose = verbose;
     }
 
@@ -106,6 +106,7 @@ public class DataSet implements Data {
      * Calculates the information entropy E(D) for this data set
      * @return data set entropy
      */
+    @Override
     public double getDataSetEntropy() {
         double entropy = 0;
 
@@ -121,6 +122,7 @@ public class DataSet implements Data {
         return entropy;
     }
 
+    @Override
     public Set<String> getLabelSet() {
         if (labelSet == null) {
             labelSet = data.stream()
@@ -159,5 +161,18 @@ public class DataSet implements Data {
         return new DataSet(data.stream()
                 .filter(sample -> Objects.equals(sample.getFeatureMap().get(feature), value))
                 .collect(Collectors.toCollection(ArrayList::new)));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataSet dataSet = (DataSet) o;
+        return Objects.equals(data, dataSet.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data);
     }
 }

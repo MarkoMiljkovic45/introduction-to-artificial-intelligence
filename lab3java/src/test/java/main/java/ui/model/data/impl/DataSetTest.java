@@ -14,6 +14,25 @@ public class DataSetTest {
     public static List<Sample> samples = List.of(/*TODO Add samples*/);
     public static DataSet dataSet = new DataSet(samples);
 
+    @Test
+    public void isEmptyTrueTest() {
+        assertTrue(emptyDataSet.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        assertFalse(dataSet.isEmpty());
+    }
+
+    @Test
+    public void sizeTest() {
+        assertEquals(5 /*TODO Add size*/, dataSet.size());
+    }
+
+    @Test
+    public void sizeZeroTest() {
+        assertEquals(0, emptyDataSet.size());
+    }
 
     @Test
     public void emptyDataSetFindMostFrequentLabelTest() {
@@ -55,5 +74,36 @@ public class DataSetTest {
         Set<String> expectedSet = Set.of(/*TODO Add expected features*/);
 
         assertEquals(expectedSet, featureSet);
+    }
+
+    @Test
+    public void getLabelSetTest() {
+        Set<String> labelSet = dataSet.getLabelSet(/*TODO Add feature*/);
+        Set<String> expectedSet = Set.of(/*TODO Add expected labels*/);
+
+        assertEquals(expectedSet, labelSet);
+    }
+
+    @Test
+    public void getDataSetEntropyTest() {
+        double expectedEntropy = 0.0; //TODO Calc actual entropy
+        assertEquals(expectedEntropy, dataSet.getDataSetEntropy());
+    }
+
+    @Test
+    public void partitionFeatureValueTest() {
+        Data expectedPartition = new DataSet(List.of(/*TODO Expected samples*/));
+        assertEquals(expectedPartition, dataSet.partitionByFeatureValue("" /*TODO Feature*/, "" /*TODO Value*/));
+    }
+
+    @Test
+    public void mostDiscriminativeFeatureTest() {
+        assertEquals("" /*TODO Most desc feature*/, dataSet.mostDiscriminativeFeature());
+    }
+
+    @Test
+    public void igTest() {
+        double expectedIG = 0; //TODO Calc ig
+        assertEquals(expectedIG, dataSet.IG("" /*TODO Feature*/));
     }
 }
