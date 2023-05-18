@@ -52,7 +52,7 @@ public class DataSet implements Data {
     public Data partitionByLabel(String label) {
         return new DataSet(data.stream()
                 .filter(sample -> sample.getLabel().equals(label))
-                .collect(Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.toCollection(ArrayList::new)), verbose);
     }
 
     /**
@@ -95,7 +95,7 @@ public class DataSet implements Data {
         }
 
         if (verbose) {
-            System.out.print("IG(" + feature + ")=" + ig);
+            System.out.print("IG(" + feature + ")=" + ig + " ");
         }
 
         return ig;
@@ -155,7 +155,7 @@ public class DataSet implements Data {
     public Data partitionByFeatureValue(String feature, String value) {
         return new DataSet(data.stream()
                 .filter(sample -> Objects.equals(sample.getFeatureMap().get(feature), value))
-                .collect(Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.toCollection(ArrayList::new)), verbose);
     }
 
     @Override

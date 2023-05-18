@@ -24,6 +24,9 @@ public class ID3 {
      */
     public List<String> predict(Data testSet) {
         //TODO
+
+        //1. Print BRANCHES to all leafs, Nodes sorted by depth
+        //
         return null;
     }
 
@@ -50,6 +53,6 @@ public class ID3 {
     }
 
     private static Set<String> subset(Set<String> set, String exclude) {
-        return set.stream().filter(e -> !e.equals(exclude)).collect(Collectors.toCollection(HashSet::new));
+        return set.stream().filter(e -> !e.equals(exclude)).collect(Collectors.toSet());
     }
 }
