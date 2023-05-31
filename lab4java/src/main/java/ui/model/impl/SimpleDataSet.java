@@ -29,7 +29,12 @@ public class SimpleDataSet implements DataSet {
     }
 
     @Override
-    public int getFeatureCount() {
+    public int getInputLayerSize() {
         return header.size() - 1;
+    }
+
+    @Override
+    public int getOutputLayerSize() {
+        return 1;
     }
 }

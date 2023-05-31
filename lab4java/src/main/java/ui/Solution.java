@@ -5,7 +5,6 @@ import ui.model.Sample;
 import ui.model.impl.SimpleDataSet;
 import ui.model.impl.SimpleSample;
 import ui.nn.NeuralNet;
-import ui.nn.NeuralNetArchitecture;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,9 +23,7 @@ public class Solution {
             DataSet testSet = loadDataSet(Path.of(argMap.get("--test")));
 
             NeuralNet nn = new NeuralNet(
-                    trainSet,
-                    testSet,
-                    NeuralNetArchitecture.getInstance(trainSet.getFeatureCount(), argMap.get("--nn"), 1),
+                    argMap.get("--nn"),
                     Integer.parseInt(argMap.get("--popsize")),
                     Integer.parseInt(argMap.get("--elitism")),
                     Double.parseDouble(argMap.get("--p")),
@@ -34,8 +31,10 @@ public class Solution {
                     Long.parseLong(argMap.get("--iter"))
             );
 
-            nn.run();
-        } catch (Exception e) {
+            nn.fit(trainSet);
+            nn.test(testSet);
+        }
+        catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
     }

@@ -5,6 +5,7 @@ import java.util.List;
 public interface DataSet {
     void setHeader(List<String> header);
     void addSample(Sample sample);
-    int getFeatureCount();
+    int getInputLayerSize();
+    int getOutputLayerSize();
     List<Sample> getSamples();
 }
