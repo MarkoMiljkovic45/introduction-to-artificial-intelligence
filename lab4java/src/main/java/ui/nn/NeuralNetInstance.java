@@ -1,8 +1,7 @@
 package ui.nn;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.analysis.function.Sigmoid;
+import org.apache.commons.math3.linear.*;
 import ui.model.DataSet;
 
 import java.util.ArrayList;
@@ -15,21 +14,20 @@ public class NeuralNetInstance {
     private final String architecture;
     private final List<RealMatrix> hiddenLayers = new ArrayList<>();
     private double latestEvaluation;
+    private final Sigmoid transferFunction = new Sigmoid(0, 1);
     private final static double GAUSS_STDDEV_FOR_INITIAL_WEIGHTS = 0.01;
 
     public NeuralNetInstance(int inputLayerSize, int outputLayerSize, String architecture) {
         this.inputLayerSize = inputLayerSize;
         this.outputLayerSize = outputLayerSize;
         this.architecture = architecture;
-
-        initHiddenLayers();
     }
 
     public double getLatestEvaluation() {
         return latestEvaluation;
     }
 
-    private void initHiddenLayers() {
+    public void initHiddenLayers() {
         String[] layers = architecture.split("s");
         int numOfLayers = layers.length - 1;
 
@@ -74,8 +72,19 @@ public class NeuralNetInstance {
             throw new IllegalArgumentException("Unexpected input size.");
         }
 
-        //TODO
-        return null;
+        RealVector output = input;
+        int numOfLayers = hiddenLayers.size();
+
+        for (int i = 0; i < numOfLayers; i++) {
+            RealMatrix hiddenLayer = hiddenLayers.get(i);
+            output = hiddenLayer.preMultiply(output);
+
+            if (i + 1 < numOfLayers) {
+                output.mapToSelf(transferFunction);
+            }
+        }
+
+        return output;
     }
 
     /**
@@ -87,7 +96,20 @@ public class NeuralNetInstance {
      * @param dataSet used for evaluation
      */
     public void evaluate(DataSet dataSet) {
-        //TODO Sets latestEvaluation
+        List<RealVector> inputs = dataSet.getInputs();
+        RealVector expectedOutputs = dataSet.getOutputs();
+        RealVector actualOutputs = MatrixUtils.createRealVector(new double[0]);
+
+        for (RealVector input: inputs) {
+            actualOutputs = actualOutputs.append(getOutput(input));
+        }
+
+        RealVector error = expectedOutputs.subtract(actualOutputs);
+
+        int errorCount = error.getDimension();
+        double errorNorm = error.getNorm();
+
+        latestEvaluation = errorNorm * errorNorm / errorCount;
     }
 
     /**
@@ -100,7 +122,32 @@ public class NeuralNetInstance {
      * @return child instance
      */
     public static NeuralNetInstance pair(NeuralNetInstance first, NeuralNetInstance second, double pMutation, double gaussStdDev) {
-        //TODO
-        return null;
+        NeuralNetInstance child = new NeuralNetInstance(first.inputLayerSize, first.outputLayerSize, first.architecture);
+
+        int hiddenLayerCount = first.hiddenLayers.size();
+
+        for (int i = 0; i < hiddenLayerCount; i++) {
+            RealMatrix firstLayer = first.hiddenLayers.get(i);
+            RealMatrix secondLayer = second.hiddenLayers.get(i);
+
+            RealMatrix layerAverage = firstLayer.add(secondLayer).scalarMultiply(0.5);
+
+            layerAverage.walkInRowOrder(new DefaultRealMatrixChangingVisitor() {
+                private final Random random = new Random();
+                @Override
+                public double visit(int row, int col, double value) {
+                    if (random.nextDouble() < pMutation) {
+                        double mutation = random.nextGaussian() * gaussStdDev;
+                        return value + mutation;
+                    } else {
+                        return value;
+                    }
+                }
+            });
+
+            child.hiddenLayers.add(layerAverage);
+        }
+
+        return child;
     }
 }

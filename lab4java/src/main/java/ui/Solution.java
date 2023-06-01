@@ -1,9 +1,8 @@
 package ui;
 
+import org.apache.commons.math3.linear.MatrixUtils;
 import ui.model.DataSet;
-import ui.model.Sample;
 import ui.model.impl.SimpleDataSet;
-import ui.model.impl.SimpleSample;
 import ui.nn.NeuralNet;
 
 import java.io.IOException;
@@ -68,16 +67,18 @@ public class Solution {
 
         int linesSize = lines.size();
         int headerSize = header.size();
+        int inputSize = headerSize - 1;
 
         for (int i = 1; i < linesSize; i++) {
-            Sample sample = new SimpleSample();
             String[] sampleData = lines.get(i).split(",");
+            double[] data = new double[inputSize];
 
-            for (int j = 0; j < headerSize; j++) {
-                sample.addFeature(header.get(j), Double.parseDouble(sampleData[j]));
+            for (int j = 0; j < inputSize; j++) {
+                data[j] = Double.parseDouble(sampleData[j]);
             }
 
-            dataSet.addSample(sample);
+            dataSet.addInput(MatrixUtils.createRealVector(data));
+            dataSet.addOutput(Double.parseDouble(sampleData[inputSize]));
         }
 
         return dataSet;

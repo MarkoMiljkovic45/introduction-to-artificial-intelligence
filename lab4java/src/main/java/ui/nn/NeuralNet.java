@@ -40,7 +40,7 @@ public class NeuralNet {
         for (int i = 0; i < iter; i++) {
             iterationStep();
 
-            if (i % INFO_ON_ITER == 0) {
+            if (i % INFO_ON_ITER == 0 && i != 0) {
                 System.out.printf("[Train error @%d]: %.6f\n", i, bestInstance.getLatestEvaluation());
             }
         }
@@ -91,11 +91,15 @@ public class NeuralNet {
         population.clear();
 
         for (int i = 0; i < populationSize; i++) {
-            population.add(new NeuralNetInstance(
+            NeuralNetInstance instance = new NeuralNetInstance(
                     trainSet.getInputLayerSize(),
                     trainSet.getOutputLayerSize(),
                     architecture
-            ));
+            );
+
+            instance.initHiddenLayers();
+
+            population.add(instance);
         }
     }
 
