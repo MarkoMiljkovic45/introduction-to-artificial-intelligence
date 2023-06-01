@@ -1,7 +1,7 @@
 package ui.model.impl;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealVector;
+import ui.math.MatrixUtils;
+import ui.math.RealVector;
 import ui.model.DataSet;
 
 import java.util.ArrayList;

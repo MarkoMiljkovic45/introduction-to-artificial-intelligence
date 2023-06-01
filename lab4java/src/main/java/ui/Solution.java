@@ -1,6 +1,6 @@
 package ui;
 
-import org.apache.commons.math3.linear.MatrixUtils;
+import ui.math.MatrixUtils;
 import ui.model.DataSet;
 import ui.model.impl.SimpleDataSet;
 import ui.nn.NeuralNet;

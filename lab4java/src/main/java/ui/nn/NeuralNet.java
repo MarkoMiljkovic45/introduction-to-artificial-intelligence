@@ -37,10 +37,10 @@ public class NeuralNet {
     public void fit(DataSet trainSet) {
         setTrainSet(trainSet);
         initPopulation();
-        for (int i = 0; i < iter; i++) {
+        for (int i = 1; i <= iter; i++) {
             iterationStep();
 
-            if (i % INFO_ON_ITER == 0 && i != 0) {
+            if (i % INFO_ON_ITER == 0) {
                 System.out.printf("[Train error @%d]: %.6f\n", i, bestInstance.getLatestEvaluation());
             }
         }
@@ -52,13 +52,15 @@ public class NeuralNet {
         bestInstance = population.get(0);
 
         List<NeuralNetInstance> nextGeneration = new ArrayList<>(population.subList(0, elitism));
+
+        double maxError = population.get(populationSize - 1).getLatestEvaluation();
         double totalFitness = population.stream()
-                .mapToDouble(instance -> 1 / instance.getLatestEvaluation())
+                .mapToDouble(instance -> maxError - instance.getLatestEvaluation())
                 .sum();
 
         while (nextGeneration.size() < populationSize) {
-            NeuralNetInstance firstParent = pickParent(totalFitness);
-            NeuralNetInstance secondParent = pickParent(totalFitness);
+            NeuralNetInstance firstParent = pickParent(totalFitness, maxError);
+            NeuralNetInstance secondParent = pickParent(totalFitness, maxError);
 
             nextGeneration.add(NeuralNetInstance.pair(firstParent, secondParent, pMutation, gaussStdDev));
         }
@@ -72,19 +74,19 @@ public class NeuralNet {
      * @param totalFitness total population fitness
      * @return an instance from the population
      */
-    private NeuralNetInstance pickParent(double totalFitness) {
+    private NeuralNetInstance pickParent(double totalFitness, double maxError) {
         double pick = new Random().nextDouble();
         double totalLen = 0;
 
         for (NeuralNetInstance instance: population) {
-            totalLen += 1 / (instance.getLatestEvaluation() * totalFitness);
+            totalLen += (maxError - instance.getLatestEvaluation()) / totalFitness;
 
             if (pick < totalLen) {
                 return instance;
             }
         }
 
-        return population.get(0);
+        throw new RuntimeException("Unexpected total fitness");
     }
 
     private void initPopulation() {

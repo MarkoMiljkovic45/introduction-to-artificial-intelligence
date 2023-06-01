@@ -1,7 +1,9 @@
 package ui.nn;
 
-import org.apache.commons.math3.analysis.function.Sigmoid;
-import org.apache.commons.math3.linear.*;
+import ui.math.MatrixUtils;
+import ui.math.RealMatrix;
+import ui.math.RealVector;
+import ui.math.Sigmoid;
 import ui.model.DataSet;
 
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ public class NeuralNetInstance {
     private final String architecture;
     private final List<RealMatrix> hiddenLayers = new ArrayList<>();
     private double latestEvaluation;
-    private final Sigmoid transferFunction = new Sigmoid(0, 1);
+    private final Sigmoid transferFunction = new Sigmoid();
     private final static double GAUSS_STDDEV_FOR_INITIAL_WEIGHTS = 0.01;
 
     public NeuralNetInstance(int inputLayerSize, int outputLayerSize, String architecture) {
@@ -29,18 +31,16 @@ public class NeuralNetInstance {
 
     public void initHiddenLayers() {
         String[] layers = architecture.split("s");
-        int numOfLayers = layers.length - 1;
+        int previousLayerSize = inputLayerSize + 1; // +1 for bias input
 
-        int previousLayerSize = inputLayerSize;
-
-        for (int i = 0; i < numOfLayers; i++) {
-            int layerSize = Integer.parseInt(layers[i]);
+        for (String layer : layers) {
+            int layerSize = Integer.parseInt(layer);
 
             double[][] randomWeights = getRandomWeightsMatrix(previousLayerSize, layerSize);
             RealMatrix weightMatrix = MatrixUtils.createRealMatrix(randomWeights);
             hiddenLayers.add(weightMatrix);
 
-            previousLayerSize = layerSize;
+            previousLayerSize = layerSize + 1; // +1 for bias input
         }
 
         double[][] randomWeights = getRandomWeightsMatrix(previousLayerSize, outputLayerSize);
@@ -72,6 +72,8 @@ public class NeuralNetInstance {
             throw new IllegalArgumentException("Unexpected input size.");
         }
 
+        input = input.append(1);                    //Add bias
+
         RealVector output = input;
         int numOfLayers = hiddenLayers.size();
 
@@ -81,6 +83,7 @@ public class NeuralNetInstance {
 
             if (i + 1 < numOfLayers) {
                 output.mapToSelf(transferFunction);
+                output = output.append(1);              //Add bias
             }
         }
 
@@ -105,11 +108,12 @@ public class NeuralNetInstance {
         }
 
         RealVector error = expectedOutputs.subtract(actualOutputs);
+        RealVector squaredError = error.ebeMultiply(error);
 
         int errorCount = error.getDimension();
-        double errorNorm = error.getNorm();
+        double totalSquaredError = squaredError.getSum();
 
-        latestEvaluation = errorNorm * errorNorm / errorCount;
+        latestEvaluation = totalSquaredError / errorCount;
     }
 
     /**
@@ -132,22 +136,31 @@ public class NeuralNetInstance {
 
             RealMatrix layerAverage = firstLayer.add(secondLayer).scalarMultiply(0.5);
 
-            layerAverage.walkInRowOrder(new DefaultRealMatrixChangingVisitor() {
-                private final Random random = new Random();
-                @Override
-                public double visit(int row, int col, double value) {
-                    if (random.nextDouble() < pMutation) {
-                        double mutation = random.nextGaussian() * gaussStdDev;
-                        return value + mutation;
-                    } else {
-                        return value;
-                    }
-                }
-            });
+            int rows = layerAverage.getRows();
+            int cols = layerAverage.getCols();
+            RealMatrix mutationMatrix = getMutationLayer(rows, cols, pMutation, gaussStdDev);
+            RealMatrix mutatedLayer = layerAverage.add(mutationMatrix);
 
-            child.hiddenLayers.add(layerAverage);
+            child.hiddenLayers.add(mutatedLayer);
         }
 
         return child;
+    }
+
+    private static RealMatrix getMutationLayer(int rows, int cols, double pMutation, double gaussStdDev) {
+        Random random = new Random();
+        double[][] data = new double[rows][cols];
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (random.nextDouble() < pMutation) {
+                    data[row][col] = random.nextGaussian() * gaussStdDev;
+                } else {
+                    data[row][col] = 0;
+                }
+            }
+        }
+
+        return MatrixUtils.createRealMatrix(data);
     }
 }

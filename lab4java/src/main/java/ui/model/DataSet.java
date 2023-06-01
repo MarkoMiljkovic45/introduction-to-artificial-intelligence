@@ -1,6 +1,6 @@
 package ui.model;
 
-import org.apache.commons.math3.linear.RealVector;
+import ui.math.RealVector;
 
 import java.util.List;
 
